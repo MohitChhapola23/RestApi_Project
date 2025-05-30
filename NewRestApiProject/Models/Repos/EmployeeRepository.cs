@@ -13,9 +13,17 @@ namespace NewRestApiProject.Models.Repos
         {
             this.context = context;
         }
-        public Task<Employee> AddEmployee(Employee employee)
+        public async Task<Employee> AddEmployee(Employee employee)
         {
-            throw new NotImplementedException();
+            if (employee.Department != null)
+            {
+                context.Entry(employee.Department).State = EntityState.Unchanged;
+            }
+            var result=await context.Employees.AddAsync(employee);
+           
+            await context.SaveChangesAsync();
+
+            return result.Entity;
         }
 
         public Task DeleteEmployee(int employeeId)
@@ -23,9 +31,13 @@ namespace NewRestApiProject.Models.Repos
             throw new NotImplementedException();
         }
 
-        public Task<Employee> GetEmployee(int employeeId)
+        public async Task<Employee> GetEmployee(int employeeId)
         {
-            throw new NotImplementedException();
+            //LINQ
+
+           Employee? emp = await context.Employees.Include(d=>d.Department).FirstOrDefaultAsync(e=>e.EmployeeId==employeeId);
+
+           return emp;
         }
 
         public Task<Employee> GetEmployeeByEmail(string email)
