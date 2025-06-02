@@ -26,9 +26,16 @@ namespace NewRestApiProject.Models.Repos
             return result.Entity;
         }
 
-        public Task DeleteEmployee(int employeeId)
+        public async Task<Employee> DeleteEmployee(int employeeId)
         {
-            throw new NotImplementedException();
+            var emp_to_del=await context.Employees.FirstOrDefaultAsync(e=>e.EmployeeId==employeeId);
+            if(emp_to_del != null) 
+            {
+                context.Employees.Remove(emp_to_del);   
+                await context.SaveChangesAsync();
+                return emp_to_del;
+            }
+            return null;
         }
 
         public async Task<Employee> GetEmployee(int employeeId)

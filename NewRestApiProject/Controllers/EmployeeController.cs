@@ -22,7 +22,7 @@ namespace NewRestApiProject.Controllers
         {
             try
             {
-                return Ok(await repository.GetEmployees());
+                return Ok(new { response = "Success", result = await repository.GetEmployees() });
             }
             catch(Exception)
             {
@@ -40,16 +40,16 @@ namespace NewRestApiProject.Controllers
                Employee emp= await repository.GetEmployee(id);
                 if (emp != null)
                 {
-                    return Ok(emp);
+                    return Ok(new {response="Success",result=emp});
                 }
                 else
                 {
-                    return StatusCode(StatusCodes.Status404NotFound, new { error = "Record Not Found" });
+                    return StatusCode(StatusCodes.Status404NotFound, new {response="Failure",  result = $"Record Not Found with employee id {id}" });
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Error to retrive data from db" });
+                return StatusCode(StatusCodes.Status500InternalServerError, new { response = "Failure", result = $"Error to delete in db {ex.Message}" });
             }
            
         }
@@ -64,12 +64,12 @@ namespace NewRestApiProject.Controllers
                     return BadRequest();
 
                 var created_emp= await repository.AddEmployee(employee); 
-                return CreatedAtAction(nameof(Get), new {id=created_emp.EmployeeId},created_emp);
+                return CreatedAtAction(nameof(Get), new { id = created_emp.EmployeeId }, new {response="Success",result=created_emp});
 
             }
-            catch(Exception)
+            catch(Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error Creating employee in database");
+                return StatusCode(StatusCodes.Status500InternalServerError, new {response="Failure", result = $"Error to delete in db {ex.Message}" });
             }
         }
 
@@ -80,9 +80,25 @@ namespace NewRestApiProject.Controllers
         }
 
         // DELETE api/<EmployeeController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(int id)
         {
+            try
+            {
+                
+              
+               var emp_to_del = await repository.DeleteEmployee(id);
+               if (emp_to_del == null)
+                {
+                    return NotFound(new {response="Failure", result= $"Employee with Id={id} not found" });
+                }
+                return Ok(new {response="Success", result=emp_to_del});
+
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new {response="Failure", msg=$"Error to delete in db {ex.Message}"});
+            }
         }
     }
 }
