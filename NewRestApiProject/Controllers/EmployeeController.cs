@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NewRestApiProject.Models;
+using NewRestApiProject.Models.Repos;
 using NewRestApiProject.Models.Repos.Interfaces;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -75,8 +76,24 @@ namespace NewRestApiProject.Controllers
 
         // PUT api/<EmployeeController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public async Task<ActionResult<Employee>> Put(int id, Employee employee)
         {
+            try
+            {
+                if (employee.EmployeeId != id)
+                    return BadRequest("Employee Id mismatch");// new { response = "employee not passed" });
+                var emptoUpdate = await repository.GetEmployee(id);
+                if (emptoUpdate == null)
+                {
+                    return NotFound($"Employee with Id={id} not found");
+                }
+                return await repository.UpdateEmployee(employee);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error updating emp rec in database");
+            }
         }
 
         // DELETE api/<EmployeeController>/5

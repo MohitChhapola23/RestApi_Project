@@ -62,9 +62,30 @@ namespace NewRestApiProject.Models.Repos
             throw new NotImplementedException();
         }
 
-        public Task<Employee> UpdateEmployee(Employee employee)
+        public async Task<Employee> UpdateEmployee(Employee employee)
         {
-            throw new NotImplementedException();
+            var emp_to_update = await context.Employees.FirstOrDefaultAsync(e => e.EmployeeId == employee.EmployeeId);
+            if (emp_to_update != null)
+            {
+                emp_to_update.FirstName = employee.FirstName;   
+                emp_to_update.LastName = employee.LastName;
+                emp_to_update.PhotoPath = employee.PhotoPath;   
+                emp_to_update.DateOfBirth= employee.DateOfBirth;
+               
+                emp_to_update.Sex=employee.Sex;
+                emp_to_update.Email = employee.Email;
+                
+                if(employee.DepartmentId!=0)
+                    emp_to_update.DepartmentId = employee.DepartmentId;
+                
+                if(employee.Department!=null)
+                    emp_to_update.Department.DepartmentId = employee.Department.DepartmentId;
+
+                await context.SaveChangesAsync();
+
+                return await GetEmployee(emp_to_update.EmployeeId);
+            }
+            return null;
         }
     }
 }
