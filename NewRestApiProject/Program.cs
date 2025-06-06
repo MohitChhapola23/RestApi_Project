@@ -8,9 +8,18 @@ using NewRestApiProject.Models.Repos.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
+string mycorspolicy1 = "allowAll";
 // Add services to the container.
 
- var connectionString = builder.Configuration.GetConnectionString("conn");
+builder.Services.AddCors(opt =>
+{
+    opt.AddPolicy(name: mycorspolicy1, req =>
+    {
+        req.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+    });
+});
+
+var connectionString = builder.Configuration.GetConnectionString("conn");
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
 
@@ -37,5 +46,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseCors(mycorspolicy1);
 
 app.Run();
